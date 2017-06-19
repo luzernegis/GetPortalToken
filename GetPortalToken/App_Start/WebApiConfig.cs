@@ -16,6 +16,13 @@ namespace GetPortalToken
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+
+            config.Routes.MapHttpRoute(
+                name: "DefaultIndex",
+                routeTemplate: "",
+                defaults: null
+            );
         }
     }
 }
