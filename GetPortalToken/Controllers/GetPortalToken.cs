@@ -7,6 +7,8 @@ using RestSharp;
 using MacRestSharpTest.Models;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
+using System.Xml;
+using System.Configuration;
 
 namespace MacRestSharpTest.Controllers
 {
@@ -16,12 +18,21 @@ namespace MacRestSharpTest.Controllers
 
         public string Get()
         {
-            var client = new RestClient("https://gis.luzernecounty.org/portal/sharing/rest/generateToken");
+
+            var impersonateUser = System.Configuration.ConfigurationManager.AppSettings["ImpersonateUser"];
+            var impersonatePassword = HttpUtility.UrlEncode(System.Configuration.ConfigurationManager.AppSettings["ImpersonatePassword"]);
+            var gisPortalTokenEndpoint = System.Configuration.ConfigurationManager.AppSettings["GISPortalTokenEndpoint"];
+            var referrerType = System.Configuration.ConfigurationManager.AppSettings["ReferrerType"];
+            var responseFormat = System.Configuration.ConfigurationManager.AppSettings["ResponseFormat"];
+
+            var formParameters = "username=" + impersonateUser + "&password=" + impersonatePassword + "&client=" + referrerType + "&f=" + responseFormat; 
+
+
+            var client = new RestClient(gisPortalTokenEndpoint);
             var request = new RestRequest(Method.POST);
-            request.AddHeader("postman-token", "9c3b3863-cebd-30cc-acf3-ae12c17f0a69");
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
-            request.AddParameter("application/x-www-form-urlencoded", "username=gissubscriber&password=U%24e4p%40idAcct&client=requestip&f=json", ParameterType.RequestBody);
+            request.AddParameter("application/x-www-form-urlencoded", formParameters, ParameterType.RequestBody);
             IRestResponse response = client.Execute(request);
 
             PortalToken portaltoken = JsonConvert.DeserializeObject<PortalToken>(response.Content.ToString());
